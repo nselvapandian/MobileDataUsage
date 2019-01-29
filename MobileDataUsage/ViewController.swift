@@ -12,6 +12,7 @@ import Foundation
 class ViewController: UIViewController {
   
   @IBOutlet weak var mainTableView: UITableView!
+  @IBOutlet weak var totalUsageValueLabel: UILabel!
   
   var years: [String]?
   var allRecords = [Record]()
@@ -41,6 +42,7 @@ class ViewController: UIViewController {
         
         performOnMainThread {
           self.mainTableView.reloadData()
+          self.getTotalUsageData()
         }
         print("Fetch USage API Success")
       }
@@ -59,7 +61,27 @@ class ViewController: UIViewController {
     
     performOnMainThread {
       self.mainTableView.reloadData()
+      self.getTotalUsageData()
     }
+  }
+  
+  private func getTotalUsageData() {
+    
+    var totalVolume: CGFloat = 0.0
+  
+    for year in self.years ?? [] {
+    
+      let lRecords = self.allRecords.filter({ $0.quarter.contains(year) })
+    
+    //Calculating the total usage
+    for vol in lRecords {
+      
+      if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
+        totalVolume += CGFloat(truncating: n)
+      }
+    }
+    }
+    self.totalUsageValueLabel.text = "\(getHumanReadableFormat(volume: totalVolume))"
   }
   
   
