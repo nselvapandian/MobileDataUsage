@@ -18,8 +18,9 @@ class MobileDataUsageTests: XCTestCase {
         // Put setup code here. This method is called before the invocation of each test method in the class.
       self.fetchMobileUSageFromLocal()
       
-      self.checkQuarterlyUsageDeviation(row: 8)
-      self.checkQuarterlyUsageDeviation(row: 100)
+      self.checkQuarterlyUsageDeviationForTheYear(year: "2005")
+      self.checkQuarterlyUsageDeviationForTheYear(year: "2100")
+      self.checkQuarterlyUsageDeviationForTheYear(year: "2011")
       
       self.getYearlyUsageDataForTheYear(year: "2005")
       self.getYearlyUsageDataForTheYear(year: "2105")
@@ -53,20 +54,14 @@ class MobileDataUsageTests: XCTestCase {
     print(self.years as Any)
   }
   
-  func checkQuarterlyUsageDeviation(row: Int) {
+  func checkQuarterlyUsageDeviationForTheYear(year: String) {
     
-    guard row > 0 else {
-      print("Row must be greater than 0")
+    let lRecords = self.allRecords.filter({ $0.quarter.contains(year ) })
+    
+    guard lRecords.count > 0 else {
+      print("No deviation found or the entered year is wrong")
       return
     }
-  
-    guard self.years?.count ?? 0 > row else {
-      print("Out of range")
-      return
-    }
-    
-    let year = self.years?[row - 1]
-    let lRecords = self.allRecords.filter({ $0.quarter.contains(year ?? "") })
     
     var quarter = ""
     var quarterlyValue: CGFloat = 0.0
