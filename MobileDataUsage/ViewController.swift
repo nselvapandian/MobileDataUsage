@@ -15,16 +15,26 @@ class ViewController: UIViewController {
   
   var years: [String]?
   var allRecords = [Record]()
+  var reachability: Reachability?
+  let hostNames = [nil, "google.com", "invalidhost"]
+  var hostIndex = 0
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    // Do any additional setup after loading the view, typically from a nib.
     
+    startHost(at: 0)
+    self.fetchMobileUsageData()
+  }
+  
+  private func fetchMobileUsageData() {
     NetworkManager.sharedManager.getMobileUsageData(requestType: HTTPRequestType.GET, success: { (data, response) in
       
       do {
         
         let dataUsage = try? JSONDecoder().decode(DataUsage.self, from: data)
+        
+        UserDefaults.standard.set(data, forKey: "usage")
+        UserDefaults.standard.synchronize()
         
         self.allRecords = dataUsage?.result.records ?? []
         self.years = Array(Set(self.allRecords.compactMap({ $0.quarter.components(separatedBy: "-").first }))).sorted()
@@ -32,14 +42,99 @@ class ViewController: UIViewController {
         performOnMainThread {
           self.mainTableView.reloadData()
         }
-        print("Success")
+        print("Fetch USage API Success")
       }
-      
-      
     }) { (error) in
       print("error")
     }
+  }
+  
+  private func fetchMobileUSageFromLocal() {
     
+    let data1 = UserDefaults.standard.object(forKey: "usage") as? Data
+    let dataUsage1 = try? JSONDecoder().decode(DataUsage.self, from: data1 ?? Data())
+    
+    self.allRecords = dataUsage1?.result.records ?? []
+    self.years = Array(Set(self.allRecords.compactMap({ $0.quarter.components(separatedBy: "-").first }))).sorted()
+    
+    performOnMainThread {
+      self.mainTableView.reloadData()
+    }
+  }
+  
+  
+  func startHost(at index: Int) {
+    stopNotifier()
+    setupReachability(hostNames[index], useClosures: true)
+    startNotifier()
+    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+      self.startHost(at: (index + 1) % 3)
+    }
+  }
+  
+  func setupReachability(_ hostName: String?, useClosures: Bool) {
+    let reachability: Reachability?
+    if let hostName = hostName {
+      reachability = Reachability(hostname: hostName)
+    } else {
+      reachability = Reachability()
+    }
+    self.reachability = reachability
+    
+    if useClosures {
+      reachability?.whenReachable = { reachability in
+        self.updateWhenReachable(reachability)
+      }
+      reachability?.whenUnreachable = { reachability in
+        self.updateWhenNotReachable(reachability)
+      }
+    } else {
+      NotificationCenter.default.addObserver(self,
+        selector: #selector(reachabilityChanged(_:)),
+        name: .reachabilityChanged,
+        object: reachability
+      )
+    }
+  }
+  
+  func startNotifier() {
+    print("--- start notifier")
+    do {
+      try reachability?.startNotifier()
+    } catch {
+      return
+    }
+  }
+  
+  func stopNotifier() {
+    print("--- stop notifier")
+    reachability?.stopNotifier()
+    NotificationCenter.default.removeObserver(self, name: .reachabilityChanged, object: nil)
+    reachability = nil
+  }
+  
+  func updateWhenReachable(_ reachability: Reachability) {
+    print("reachable")
+    self.fetchMobileUsageData()
+  }
+  
+  func updateWhenNotReachable(_ reachability: Reachability) {
+    print("Not Reachable")
+    self.fetchMobileUSageFromLocal()
+  }
+  
+  @objc func reachabilityChanged(_ note: Notification) {
+    let reachability = note.object as! Reachability
+    
+    if reachability.connection != .none {
+      updateWhenReachable(reachability)
+    } else {
+      updateWhenNotReachable(reachability)
+    }
+  }
+  
+  deinit {
+    stopNotifier()
   }
   
   @objc func checkUsageAndShowAlert(recognizer: UITapGestureRecognizer)  {
@@ -80,7 +175,6 @@ class ViewController: UIViewController {
     }
   }
   
-  
   func showMsg(title : String, msg : String)
   {
     let alertController = UIAlertController(title: title, message: msg, preferredStyle: .alert)
@@ -110,6 +204,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     let lRecords = self.allRecords.filter({ $0.quarter.contains(year ?? "") })
     var volume: CGFloat = 0.0
     
+    //Calculating the total usage
     for vol in lRecords {
       
       if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
@@ -122,6 +217,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     var quarterlyResult = true
     var quarterlyValue: CGFloat = 0.0
     
+    //Checking for quarterly usage drop
     for vol in lRecords {
       
       if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
@@ -143,7 +239,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     cell.volumeLabel.text = humanReadableString
     cell.period.text = year
     cell.progressBar.setProgress(Float(Double(volume)/100), animated: true)
-    cell.progressBar.transform = cell.progressBar.transform.scaledBy(x: 1, y: 10)
+    cell.progressBar.transform = cell.progressBar.transform.scaledBy(x: 1, y: 7)
     
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ViewController.checkUsageAndShowAlert(recognizer:)))
     tapGesture.numberOfTapsRequired = 1
@@ -152,6 +248,5 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     return cell
   }
-  
 }
 

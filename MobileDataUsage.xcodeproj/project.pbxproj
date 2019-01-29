@@ -38,6 +38,9 @@
 		4DDBB90A21FF60B200718D14 /* info-red.png in Resources */ = {isa = PBXBuildFile; fileRef = 4DDBB90621FF60B200718D14 /* info-red.png */; };
 		4DDBB90B21FF60B200718D14 /* info-red.png in Resources */ = {isa = PBXBuildFile; fileRef = 4DDBB90621FF60B200718D14 /* info-red.png */; };
 		4DDBB90C21FF60B200718D14 /* info-red.png in Resources */ = {isa = PBXBuildFile; fileRef = 4DDBB90621FF60B200718D14 /* info-red.png */; };
+		4DDBB90E2200246200718D14 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DDBB90D2200246200718D14 /* Reachability.swift */; };
+		4DDBB90F2200246200718D14 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DDBB90D2200246200718D14 /* Reachability.swift */; };
+		4DDBB9102200246200718D14 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DDBB90D2200246200718D14 /* Reachability.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +82,7 @@
 		4DDBB8F921FF36DB00718D14 /* Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
 		4DDBB90521FF60B100718D14 /* info-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info-green.png"; sourceTree = "<group>"; };
 		4DDBB90621FF60B200718D14 /* info-red.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info-red.png"; sourceTree = "<group>"; };
+		4DDBB90D2200246200718D14 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +167,7 @@
 		4DDBB8E421FF205200718D14 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				4DDBB90D2200246200718D14 /* Reachability.swift */,
 				4DDBB8E521FF208200718D14 /* NetworkManager.swift */,
 				4DDBB8E921FF20F100718D14 /* Constants.swift */,
 				4DDBB8ED21FF2FEB00718D14 /* Extension.swift */,
@@ -315,6 +320,7 @@
 				4DDBB8B921FF19D900718D14 /* ViewController.swift in Sources */,
 				4DDBB8F621FF356000718D14 /* UsageTableViewCell.swift in Sources */,
 				4DDBB8FA21FF36DB00718D14 /* Utility.swift in Sources */,
+				4DDBB90E2200246200718D14 /* Reachability.swift in Sources */,
 				4DDBB8B721FF19D900718D14 /* AppDelegate.swift in Sources */,
 				4DDBB8F221FF300D00718D14 /* ModelClasses.swift in Sources */,
 				4DDBB8EA21FF20F100718D14 /* Constants.swift in Sources */,
@@ -331,6 +337,7 @@
 				4DDBB8CC21FF19E100718D14 /* MobileDataUsageTests.swift in Sources */,
 				4DDBB8EB21FF20F100718D14 /* Constants.swift in Sources */,
 				4DDBB8EF21FF2FEB00718D14 /* Extension.swift in Sources */,
+				4DDBB90F2200246200718D14 /* Reachability.swift in Sources */,
 				4DDBB8F721FF356000718D14 /* UsageTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -345,6 +352,7 @@
 				4DDBB8D721FF19E100718D14 /* MobileDataUsageUITests.swift in Sources */,
 				4DDBB8EC21FF20F100718D14 /* Constants.swift in Sources */,
 				4DDBB8F021FF2FEB00718D14 /* Extension.swift in Sources */,
+				4DDBB9102200246200718D14 /* Reachability.swift in Sources */,
 				4DDBB8F821FF356000718D14 /* UsageTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
