@@ -35,6 +35,8 @@ class NetworkManager {
   
   func getMobileUsageData(requestType: String, success: @escaping SuccessData, failure: @escaping FailureData) {
     
+    self.cancelAllTasks()
+    
     let url = "\(kBaseUrl)/datastore_search?resource_id=\(kResourceID)&limit=\(kLimit)"
     
     var request = URLRequest(url: URL(string : url) ?? URL(string: "")!)

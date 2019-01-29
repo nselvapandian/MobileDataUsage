@@ -239,7 +239,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     cell.volumeLabel.text = humanReadableString
     cell.period.text = year
     cell.progressBar.setProgress(Float(Double(volume)/100), animated: true)
-    //cell.progressBar.transform = cell.progressBar.transform.scaledBy(x: 1, y: 7)
+    cell.progressBar.transform = cell.progressBar.transform.scaledBy(x: 1, y: 7)
     
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ViewController.checkUsageAndShowAlert(recognizer:)))
     tapGesture.numberOfTapsRequired = 1
