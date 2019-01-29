@@ -26,6 +26,9 @@ class MobileDataUsageTests: XCTestCase {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct results.
     
+    self.testValidHost()
+    self.testInvalidHost()
+    
     self.fetchMobileUSageFromLocal()
     
     self.checkQuarterlyUsageDeviationForTheYear(year: "2005")
@@ -133,6 +136,67 @@ class MobileDataUsageTests: XCTestCase {
       }
     }
     print("\(getHumanReadableFormat(volume: totalVolume))")
+  }
+  
+  func testValidHost() {
+    let validHostName = "google.com"
+    
+    guard let reachability = Reachability(hostname: validHostName) else {
+      return XCTFail("Unable to create reachability")
+    }
+    
+    let expected = expectation(description: "Check valid host")
+    reachability.whenReachable = { reachability in
+      print("Pass: \(validHostName) is reachable - \(reachability)")
+      
+      // Only fulfill the expectation on host reachable
+      expected.fulfill()
+    }
+    reachability.whenUnreachable = { reachability in
+      print("\(validHostName) is initially unreachable - \(reachability)")
+      // Expectation isn't fulfilled here, so wait will time out if this is the only closure called
+    }
+    
+    do {
+      try reachability.startNotifier()
+    } catch {
+      return XCTFail("Unable to start notifier")
+    }
+    
+    waitForExpectations(timeout: 5, handler: nil)
+    
+    reachability.stopNotifier()
+  }
+  
+  func testInvalidHost() {
+    // Testing with an invalid host will initially show as reachable, but then the callback
+    // gets fired a second time reporting the host as unreachable
+    
+    let invalidHostName = "invalidhost"
+    
+    guard let reachability = Reachability(hostname: invalidHostName) else {
+      return XCTFail("Unable to create reachability")
+    }
+    
+    let expected = expectation(description: "Check invalid host")
+    reachability.whenReachable = { reachability in
+      print("\(invalidHostName) is initially reachable - \(reachability)")
+    }
+    
+    reachability.whenUnreachable = { reachability in
+      print("Pass: \(invalidHostName) is unreachable - \(reachability))")
+      expected.fulfill()
+    }
+    
+    do {
+      try reachability.startNotifier()
+    } catch {
+      return XCTFail("Unable to start notifier")
+    }
+    
+    waitForExpectations(timeout: 5, handler: nil)
+    
+    reachability.stopNotifier()
   }
   
 }
