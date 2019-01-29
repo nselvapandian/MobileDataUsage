@@ -13,41 +13,43 @@ class MobileDataUsageTests: XCTestCase {
   
   var years: [String]?
   var allRecords = [Record]()
-
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-      self.fetchMobileUSageFromLocal()
-      
-      self.checkQuarterlyUsageDeviationForTheYear(year: "2005")
-      self.checkQuarterlyUsageDeviationForTheYear(year: "2100")
-      self.checkQuarterlyUsageDeviationForTheYear(year: "2011")
-      
-      self.getYearlyUsageDataForTheYear(year: "2005")
-      self.getYearlyUsageDataForTheYear(year: "2105")
+  
+  override func setUp() {
+    // Put setup code here. This method is called before the invocation of each test method in the class.
+    self.fetchMobileUSageFromLocal()
+    
+    self.checkQuarterlyUsageDeviationForTheYear(year: "2005")
+    self.checkQuarterlyUsageDeviationForTheYear(year: "2100")
+    self.checkQuarterlyUsageDeviationForTheYear(year: "2011")
+    
+    self.getYearlyUsageDataForTheYear(year: "2005")
+    self.getYearlyUsageDataForTheYear(year: "2009")
+    self.getYearlyUsageDataForTheYear(year: "2015")
+    self.getYearlyUsageDataForTheYear(year: "2105")
+  }
+  
+  override func tearDown() {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+  }
+  
+  func testExample() {
+    // This is an example of a functional test case.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+  }
+  
+  func testPerformanceExample() {
+    // This is an example of a performance test case.
+    self.measure {
+      // Put the code you want to measure the time of here.
     }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
+  }
   
   func fetchMobileUSageFromLocal() {
     
-    let data1 = UserDefaults.standard.object(forKey: "usage") as? Data
-    let dataUsage1 = try? JSONDecoder().decode(DataUsage.self, from: data1 ?? Data())
-  
-    self.allRecords = dataUsage1?.result.records ?? []
+    let data = UserDefaults.standard.object(forKey: "usage") as? Data
+    let dataUsage = try? JSONDecoder().decode(DataUsage.self, from: data ?? Data())
+    
+    self.allRecords = dataUsage?.result.records ?? []
     self.years = Array(Set(allRecords.compactMap({ $0.quarter.components(separatedBy: "-").first }))).sorted()
     
     print(self.allRecords)
@@ -84,9 +86,9 @@ class MobileDataUsageTests: XCTestCase {
     }
     
     if infoText.count > 0 {
-      print(infoText)
+      print("Deviation for the year \(year) is : \(infoText)")
     } else {
-      print("Usages were increased each quarter")
+      print("Usages were increased each quarter for the year \(year)")
     }
   }
   
@@ -103,12 +105,12 @@ class MobileDataUsageTests: XCTestCase {
       }
     }
     
-    print(getHumanReadableFormat(volume: volume))
-    
     if volume == 0 {
       print("The usage is 0 or year entered is wrong")
+    } else {
+      print("Yearly usage for the year \(year) is \(getHumanReadableFormat(volume: volume))")
     }
     
   }
-
+  
 }
