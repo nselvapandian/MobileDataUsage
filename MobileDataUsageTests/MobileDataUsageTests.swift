@@ -10,9 +10,19 @@ import XCTest
 @testable import MobileDataUsage
 
 class MobileDataUsageTests: XCTestCase {
+  
+  var years: [String]?
+  var allRecords = [Record]()
 
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
+      self.fetchMobileUSageFromLocal()
+      
+      self.checkQuarterlyUsageDeviation(row: 8)
+      self.checkQuarterlyUsageDeviation(row: 100)
+      
+      self.getYearlyUsageDataForTheYear(year: "2005")
+      self.getYearlyUsageDataForTheYear(year: "2105")
     }
 
     override func tearDown() {
@@ -30,5 +40,80 @@ class MobileDataUsageTests: XCTestCase {
             // Put the code you want to measure the time of here.
         }
     }
+  
+  func fetchMobileUSageFromLocal() {
+    
+    let data1 = UserDefaults.standard.object(forKey: "usage") as? Data
+    let dataUsage1 = try? JSONDecoder().decode(DataUsage.self, from: data1 ?? Data())
+  
+    self.allRecords = dataUsage1?.result.records ?? []
+    self.years = Array(Set(allRecords.compactMap({ $0.quarter.components(separatedBy: "-").first }))).sorted()
+    
+    print(self.allRecords)
+    print(self.years as Any)
+  }
+  
+  func checkQuarterlyUsageDeviation(row: Int) {
+    
+    guard row > 0 else {
+      print("Row must be greater than 0")
+      return
+    }
+  
+    guard self.years?.count ?? 0 > row else {
+      print("Out of range")
+      return
+    }
+    
+    let year = self.years?[row - 1]
+    let lRecords = self.allRecords.filter({ $0.quarter.contains(year ?? "") })
+    
+    var quarter = ""
+    var quarterlyValue: CGFloat = 0.0
+    var infoText = ""
+    
+    for vol in lRecords {
+      
+      if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
+        if CGFloat(truncating: n) < quarterlyValue {
+          
+          if infoText.count > 0 {
+            infoText = infoText + ", \(vol.quarter) usage is less compared to \(quarter)"
+          } else {
+            infoText = infoText + "\(vol.quarter) usage is less compared to \(quarter)"
+          }
+        }
+        quarter = vol.quarter
+        quarterlyValue = CGFloat(truncating: n)
+      }
+    }
+    
+    if infoText.count > 0 {
+      print(infoText)
+    } else {
+      print("Usages were increased each quarter")
+    }
+  }
+  
+  func getYearlyUsageDataForTheYear(year: String) {
+    
+    let lRecords = self.allRecords.filter({ $0.quarter.contains(year) })
+    var volume: CGFloat = 0.0
+    
+    //Calculating the total usage
+    for vol in lRecords {
+      
+      if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
+        volume += CGFloat(truncating: n)
+      }
+    }
+    
+    print(getHumanReadableFormat(volume: volume))
+    
+    if volume == 0 {
+      print("The usage is 0 or year entered is wrong")
+    }
+    
+  }
 
 }

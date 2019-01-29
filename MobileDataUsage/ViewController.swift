@@ -142,6 +142,16 @@ class ViewController: UIViewController {
       let tapLocation = recognizer.location(in: self.mainTableView)
       if let tapIndexPath = self.mainTableView.indexPathForRow(at: tapLocation) {
         
+        guard tapIndexPath.row > 0 else {
+          print("Row must be greater than 0")
+          return
+        }
+        
+        guard self.years?.count ?? 0 > tapIndexPath.row else {
+          print("Out of range")
+          return
+        }
+        
         let year = self.years?[tapIndexPath.row]
         let lRecords = self.allRecords.filter({ $0.quarter.contains(year ?? "") })
         
