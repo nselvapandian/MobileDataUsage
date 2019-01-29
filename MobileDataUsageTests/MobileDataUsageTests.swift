@@ -26,6 +26,8 @@ class MobileDataUsageTests: XCTestCase {
     self.getYearlyUsageDataForTheYear(year: "2009")
     self.getYearlyUsageDataForTheYear(year: "2015")
     self.getYearlyUsageDataForTheYear(year: "2105")
+    
+    self.getTotalUsageData()
   }
   
   override func tearDown() {
@@ -111,6 +113,25 @@ class MobileDataUsageTests: XCTestCase {
       print("Yearly usage for the year \(year) is \(getHumanReadableFormat(volume: volume))")
     }
     
+  }
+  
+  func getTotalUsageData() {
+    
+    var totalVolume: CGFloat = 0.0
+    
+    for year in self.years ?? [] {
+      
+      let lRecords = self.allRecords.filter({ $0.quarter.contains(year) })
+      
+      //Calculating the total usage
+      for vol in lRecords {
+        
+        if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
+          totalVolume += CGFloat(truncating: n)
+        }
+      }
+    }
+    print("\(getHumanReadableFormat(volume: totalVolume))")
   }
   
 }
