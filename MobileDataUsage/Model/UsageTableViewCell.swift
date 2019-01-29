@@ -14,5 +14,6 @@ class UsageTableViewCell: UITableViewCell {
   @IBOutlet weak var volumeLabel: UILabel!
   @IBOutlet weak var period: UILabel!
   @IBOutlet weak var progressBar: UIProgressView!
+  @IBOutlet weak var quarterResultImageView: UIImageView!
 
 }

@@ -42,7 +42,54 @@ class ViewController: UIViewController {
     
   }
   
+  @objc func checkUsageAndShowAlert(recognizer: UITapGestureRecognizer)  {
+    if recognizer.state == UIGestureRecognizer.State.ended {
+      let tapLocation = recognizer.location(in: self.mainTableView)
+      if let tapIndexPath = self.mainTableView.indexPathForRow(at: tapLocation) {
+        
+        let year = self.years?[tapIndexPath.row]
+        let lRecords = self.allRecords.filter({ $0.quarter.contains(year ?? "") })
+        
+        var quarter = ""
+        var quarterlyValue: CGFloat = 0.0
+        var infoText = ""
+        
+        for vol in lRecords {
+          
+          if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
+            if CGFloat(truncating: n) < quarterlyValue {
+              
+              if infoText.count > 0 {
+                infoText = infoText + ", \(vol.quarter) usage is less compared to \(quarter)"
+              } else {
+                infoText = infoText + "\(vol.quarter) usage is less compared to \(quarter)"
+              }
+            }
+            quarter = vol.quarter
+            quarterlyValue = CGFloat(truncating: n)
+          }
+        }
+        
+        if infoText.count > 0 {
+          self.showMsg(title: "Info", msg: infoText)
+        } else {
+          self.showMsg(title: "Info", msg: "Usages were increased each quarter")
+        }
+        
+      }
+    }
+  }
   
+  
+  func showMsg(title : String, msg : String)
+  {
+    let alertController = UIAlertController(title: title, message: msg, preferredStyle: .alert)
+    alertController.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default)
+    {
+      action -> Void in
+    })
+    self.present(alertController, animated: true)
+  }
 }
 
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
@@ -63,7 +110,6 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     let lRecords = self.allRecords.filter({ $0.quarter.contains(year ?? "") })
     var volume: CGFloat = 0.0
     
-    
     for vol in lRecords {
       
       if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
@@ -71,10 +117,38 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
       }
     }
     
-    cell.volumeLabel.text = String(format: "%.5f", Double(volume))
+    let humanReadableString = getHumanReadableFormat(volume: volume)
+    
+    var quarterlyResult = true
+    var quarterlyValue: CGFloat = 0.0
+    
+    for vol in lRecords {
+      
+      if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
+        
+        if CGFloat(truncating: n) < quarterlyValue {
+          quarterlyResult = false
+          break
+        }
+        quarterlyValue = CGFloat(truncating: n)
+      }
+    }
+    
+    if quarterlyResult {
+      cell.quarterResultImageView.image = UIImage(named: "info-green.png")
+    } else {
+      cell.quarterResultImageView.image = UIImage(named: "info-red.png")
+    }
+    
+    cell.volumeLabel.text = humanReadableString
     cell.period.text = year
     cell.progressBar.setProgress(Float(Double(volume)/100), animated: true)
     cell.progressBar.transform = cell.progressBar.transform.scaledBy(x: 1, y: 10)
+    
+    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ViewController.checkUsageAndShowAlert(recognizer:)))
+    tapGesture.numberOfTapsRequired = 1
+    tapGesture.delegate = self as? UIGestureRecognizerDelegate
+    self.view.addGestureRecognizer(tapGesture)
     
     return cell
   }
