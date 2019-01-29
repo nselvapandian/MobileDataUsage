@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension Data {
   
@@ -21,5 +22,15 @@ extension Data {
     catch{
       return [:]
     }
+  }
+}
+
+extension UIView {
+  
+  func addGrayShadow() {
+    self.layer.shadowColor = UIColor.black.cgColor
+    self.layer.shadowOpacity = 0.5
+    self.layer.shadowOffset = CGSize.zero
+    self.layer.shadowRadius = 3
   }
 }

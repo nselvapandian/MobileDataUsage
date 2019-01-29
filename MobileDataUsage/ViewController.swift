@@ -13,6 +13,8 @@ class ViewController: UIViewController {
   
   @IBOutlet weak var mainTableView: UITableView!
   @IBOutlet weak var totalUsageValueLabel: UILabel!
+  @IBOutlet weak var totalUsageView: UIView!
+  @IBOutlet weak var headerView: UIView!
   
   var years: [String]?
   var allRecords = [Record]()
@@ -25,6 +27,8 @@ class ViewController: UIViewController {
     
     startHost(at: 0)
     self.fetchMobileUsageData()
+    self.totalUsageView.addGrayShadow()
+    self.headerView.addGrayShadow()
   }
   
   private func fetchMobileUsageData() {
@@ -68,18 +72,18 @@ class ViewController: UIViewController {
   private func getTotalUsageData() {
     
     var totalVolume: CGFloat = 0.0
-  
+    
     for year in self.years ?? [] {
-    
-      let lRecords = self.allRecords.filter({ $0.quarter.contains(year) })
-    
-    //Calculating the total usage
-    for vol in lRecords {
       
-      if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
-        totalVolume += CGFloat(truncating: n)
+      let lRecords = self.allRecords.filter({ $0.quarter.contains(year) })
+      
+      //Calculating the total usage
+      for vol in lRecords {
+        
+        if let n = NumberFormatter().number(from: vol.volumeOfMobileData) {
+          totalVolume += CGFloat(truncating: n)
+        }
       }
-    }
     }
     self.totalUsageValueLabel.text = "\(getHumanReadableFormat(volume: totalVolume))"
   }
@@ -112,9 +116,9 @@ class ViewController: UIViewController {
       }
     } else {
       NotificationCenter.default.addObserver(self,
-        selector: #selector(reachabilityChanged(_:)),
-        name: .reachabilityChanged,
-        object: reachability
+                                             selector: #selector(reachabilityChanged(_:)),
+                                             name: .reachabilityChanged,
+                                             object: reachability
       )
     }
   }
@@ -271,7 +275,6 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     cell.volumeLabel.text = humanReadableString
     cell.period.text = year
     cell.progressBar.setProgress(Float(Double(volume)/100), animated: true)
-    cell.progressBar.transform = cell.progressBar.transform.scaledBy(x: 1, y: 7)
     
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(ViewController.checkUsageAndShowAlert(recognizer:)))
     tapGesture.numberOfTapsRequired = 1
